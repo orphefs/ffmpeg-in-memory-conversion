@@ -5,7 +5,7 @@ from numpy._typing import NDArray
 from pydub import AudioSegment
 import soundfile as sf
 
-
+# placeholder
 def write_to_mp3(array: NDArray, sampling_rate: int, path_to_mp3: str, normalized=True):
     channels = 2 if (array.ndim == 2 and array.shape[1] == 2) else 1
     if normalized:  # each item in the array should be a float in [-1, 1)
@@ -21,8 +21,9 @@ def main():
     audio = sf.read("/opt/data/wav/BE6JP2000005.wav")
     # array_in = np.random.random([1,10000])
     # array_in = audio[0][:,0]
-    array_in = np.int16(audio[0] * 15**2)
+    array_in = np.int16(audio[0] * 2 ** 15)
     out_filename = "/tmp/test.wav"
+
 
     ffmpeg_process = (
         ffmpeg
@@ -44,8 +45,8 @@ def main():
 
     ffmpeg_process.stdin.write(
         in_frame
-        .astype(np.int8)
-        .tobytes()
+        # .astype(np.int16)
+        # .tobytes()
     )
 
     ffmpeg_process.stdin.close()
