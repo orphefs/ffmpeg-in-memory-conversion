@@ -1,0 +1,14 @@
+.DS_Store
+.idea/*
+mbm.egg-info
+*.pyc
+venv
+.venv
+data
+.cache
+.secrets
+/**/trigger.json
+USER_DATA
+credentials.json
+build/
+dist/
