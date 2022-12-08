@@ -17,14 +17,16 @@ def write_to_mp3(array: NDArray, sampling_rate: int, path_to_mp3: str, normalize
 
 
 def main():
-
+    # load wav audio
     audio = sf.read("/opt/data/wav/BE6JP2000005.wav")
-    # array_in = np.random.random([1,10000])
-    # array_in = audio[0][:,0]
+
+    # un-normalize array and convert to int16
     array_in = np.int16(audio[0] * 2 ** 15)
+
+    # specify output filename
     out_filename = "/tmp/test.wav"
 
-
+    # init ffmpeg process
     ffmpeg_process = (
         ffmpeg
         .input('pipe:', format='s16le')
@@ -34,13 +36,9 @@ def main():
         .run_async(pipe_stdin=True)
     )
 
-    # while True:
-    in_bytes = array_in.tobytes()
-    # if not in_bytes:
-    #     break
     in_frame = (
         np
-        .frombuffer(in_bytes, np.int16)
+        .frombuffer(array_in, np.int16)
     )
 
     ffmpeg_process.stdin.write(
@@ -49,6 +47,7 @@ def main():
         # .tobytes()
     )
 
+    # close pipe
     ffmpeg_process.stdin.close()
     ffmpeg_process.wait()
 
