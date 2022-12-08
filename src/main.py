@@ -29,9 +29,9 @@ def main():
     # init ffmpeg process
     ffmpeg_process = (
         ffmpeg
-        .input('pipe:', format='s16le')
+        .input('pipe:', format='s16le', ac=2, ar='44.1k')
         # .output(out_filename, acodec='mp3', format='s16le',audio_bitrate="192k")
-        .output(out_filename, acodec='pcm_s16le')
+        .output(out_filename, acodec='pcm_s16le', ac=2, ar='44.1k')
         .overwrite_output()
         .run_async(pipe_stdin=True)
     )
