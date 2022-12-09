@@ -24,7 +24,7 @@ def st_time(func):
 
 
 @st_time
-def run_pydub_conversion(array_in: NDArray, sampling_rate: int, path_to_mp3: str, bitrate: str,
+def run_pydub_conversion(array_in: NDArray, sampling_rate: int, path_to_output_file: str, bitrate: str,
                          normalized=True):
     channels = 2 if (array_in.ndim == 2 and array_in.shape[1] == 2) else 1
     if normalized:  # each item in the array should be a float in [-1, 1)
@@ -32,11 +32,11 @@ def run_pydub_conversion(array_in: NDArray, sampling_rate: int, path_to_mp3: str
     else:
         y = np.int16(array_in)
     song = AudioSegment(y.tobytes(), frame_rate=sampling_rate, sample_width=2, channels=channels)
-    song.export(path_to_mp3, format="mp3", bitrate=bitrate)
+    song.export(path_to_output_file, format="mp3", bitrate=bitrate)
 
 
 @st_time
-def run_stream_conversion(array_in: NDArray, sampling_rate: int, path_to_mp3: str, bitrate: str,
+def run_stream_conversion(array_in: NDArray, sampling_rate: int, path_to_output_file: str, bitrate: str,
                           normalized=True):
     channels = 2 if (array_in.ndim == 2 and array_in.shape[1] == 2) else 1
     if normalized:  # each item in the array should be a float in [-1, 1)
@@ -47,7 +47,9 @@ def run_stream_conversion(array_in: NDArray, sampling_rate: int, path_to_mp3: st
     ffmpeg_process = (
         ffmpeg
         .input('pipe:', format='s16le', ac=channels, ar=sampling_rate)
-        .output(path_to_mp3, acodec='mp3', format='s16le', audio_bitrate=bitrate)
+        # .output(path_to_output_file, acodec='mp3', format='s16le', audio_bitrate=bitrate)
+        .output(path_to_output_file, acodec='aac', audio_bitrate=bitrate)
+
         # .output(out_filename, acodec='pcm_s16le', ac=2, ar='44.1k')
         .overwrite_output()
         .run_async(pipe_stdin=True)
@@ -71,17 +73,17 @@ def main(path_to_wav: str):
     audio = sf.read(path_to_wav)
 
     # specify output filename
-    out_filename = "/tmp/test.mp3"
+    path_to_output = "/tmp/test.aac"
 
     # init ffmpeg process
-    run_stream_conversion(audio[0], 44100, out_filename, "320k")
-    run_pydub_conversion(audio[0], 44100, out_filename, "320k")
+    run_stream_conversion(audio[0], 44100, path_to_output, "128k")
+    run_pydub_conversion(audio[0], 44100, path_to_output, "128k")
 
 
 if __name__ == '__main__':
     # path_to_wav = "/opt/data/wav/BE6JP2000005.wav"
-    # path_to_wav = "/opt/data/wav/AEA040700549.wav"
+    path_to_wav = "/opt/data/wav/AEA040700549.wav"
     # path_to_wav = "/opt/data/wav/FR0NT1703090.wav"
-    path_to_wav = "/opt/data/wav/DEF078003170.wav"
+    # path_to_wav = "/opt/data/wav/DEF078003170.wav"
 
     main(path_to_wav)
